@@ -2,6 +2,7 @@ package com.wqj.akka.baserpc
 
 import akka.actor.{Actor, ActorSelection, ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
+import com.wqj.akka.rpcplus.RegisterWoeker
 
 /**
   * @Auther: wqj
@@ -25,7 +26,7 @@ class Worker(val masterHost: String, val masterPort: Int) extends Actor {
       //1.MasterSystem是新建MasterSystem就确定命名的,2必须包含/user这是规定,3.Master这是在Master中actorOf中命名已经规定了
     master = context.actorSelection(s"akka.tcp://MasterSystem@$masterHost:$masterPort/user/Master")
     //向master发送消息
-    master ! "connect"
+    master ! RegisterWoeker("1","127.0.0.1","3")
   }
 
   override def receive = {
