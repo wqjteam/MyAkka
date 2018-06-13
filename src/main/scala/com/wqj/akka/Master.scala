@@ -1,5 +1,6 @@
-import akka.actor.{Actor, ActorSystem}
-import akka.remote.transport.ThrottlerTransportAdapter.Direction.Receive
+package com.wqj.akka
+
+import akka.actor.{Actor, ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -28,8 +29,14 @@ object Master{
     //actorSystem 负责监控和创建下面的actor,并且他是单列的
     val host =args(0)
     val port = args(1).toInt
-    val configStr=s""
+    val configStr=
+      s"""
+         |akka.actor.provider = "akka.remote.RemoteActorRefProvider"
+         |akka.remote.netty.tcp.hostname = "$host"
+         |akka.remote.netty.tcp.port = "$port"
+       """.stripMargin
     val config = ConfigFactory.parseString(configStr)
     val actorSystem =ActorSystem("MasterSystem",config )
+    actorSystem.actorOf(Props(new Master))
   }
 }

@@ -1,3 +1,5 @@
+package com.wqj.akka
+
 /**
   * @Auther: wqj
   * @Date: 2018/6/12 21:53
