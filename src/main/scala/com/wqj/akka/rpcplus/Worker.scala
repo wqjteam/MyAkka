@@ -6,6 +6,7 @@ import akka.actor.{Actor, ActorSelection, ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
 import com.wqj.akka.rpcplus.{Heartbeat, RegisterWoeker, RegisteredWorker, SendHeartbeat}
 import scala.concurrent.duration._
+
 /**
   * @Auther: wqj
   * @Date: 2018/6/13 11:25
@@ -16,19 +17,20 @@ class Worker(val masterHost: String, val masterPort: Int) extends Actor {
   println("执行Worker构造器")
   var master: ActorSelection = _
   val workerId = UUID.randomUUID().toString
+
   //  建立连接
   override def preStart(): Unit = {
     println("执行Worker初始化init方法")
 
-      //    work要向master发送消息 ,必须先拿到master代理对象,就是引用,
-      //    1.从actorsystem中获取相关信息
-      //    2.想master发送消息
+    //    work要向master发送消息 ,必须先拿到master代理对象,就是引用,
+    //    1.从actorsystem中获取相关信息
+    //    2.想master发送消息
 
-      //获取连接tcp
-      //1.MasterSystem是新建MasterSystem就确定命名的,2必须包含/user这是规定,3.Master这是在Master中actorOf中命名已经规定了
+    //获取连接tcp
+    //1.MasterSystem是新建MasterSystem就确定命名的,2必须包含/user这是规定,3.Master这是在Master中actorOf中命名已经规定了
     master = context.actorSelection(s"akka.tcp://MasterSystem@$masterHost:$masterPort/user/Master")
     //向master发送消息
-    master ! RegisterWoeker(workerId,"127.0.0.1","8888")
+    master ! RegisterWoeker(workerId, "127.0.0.1", "8888")
   }
 
   override def receive = {
@@ -41,6 +43,7 @@ class Worker(val masterHost: String, val masterPort: Int) extends Actor {
       context.system.scheduler.schedule(0 millis, 10000 millis, self, SendHeartbeat)
     }
 
+    //先检查自己有没有死亡,正常的话 就想master发行消息
     case SendHeartbeat => {
       println("send heartbeat to master")
       master ! Heartbeat(workerId)
@@ -48,7 +51,7 @@ class Worker(val masterHost: String, val masterPort: Int) extends Actor {
   }
 }
 
-object Worker  {
+object Worker {
   def main(args: Array[String]): Unit = {
     //actorSystem 负责监控和创建下面的actor,并且他是单列的
     val host = args(0)
@@ -79,7 +82,6 @@ object Worker  {
     //    master ! "haha"
     actorSystem.awaitTermination()
   }
-
 
 
 }

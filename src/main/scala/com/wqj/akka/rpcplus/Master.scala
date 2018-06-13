@@ -16,12 +16,14 @@ class Master(val masterHost: String, val masterPort: Int) extends Actor {
   println("执行Master构造器")
 
   //这是worker的心跳数据
-  val workerMap=new mutable.HashMap[String,WorkInfo]()
+  val workerMap = new mutable.HashMap[String, WorkInfo]()
 
-  val workers=new mutable.HashSet[WorkInfo]()
+  val workers = new mutable.HashSet[WorkInfo]()
+
   override def preStart(): Unit = {
     //初始化 可以在这里写业务逻辑
     println("Master_preStart init")
+    //给自己发送数据,定时清除死忙的worker
     context.system.scheduler.schedule(0 millis, 15000 millis, self, CheckTimeOutWorker)
   }
 
@@ -29,17 +31,19 @@ class Master(val masterHost: String, val masterPort: Int) extends Actor {
   override def receive: Receive = {
 
     case Heartbeat(id) => {
-      if(workerMap.contains(id)){
+      if (workerMap.contains(id)) {
         val workerInfo = workerMap(id)
         //报活
         val currentTime = System.currentTimeMillis()
         workerInfo.lastHeartbeatTime = currentTime
       }
     }
+
+    //删除死亡的worker
     case CheckTimeOutWorker => {
       val currentTime = System.currentTimeMillis()
       val toRemove = workers.filter(x => currentTime - x.lastHeartbeatTime > 5000)
-      for(w <- toRemove) {
+      for (w <- toRemove) {
         workers -= w
         workerMap -= w.id
       }
@@ -77,7 +81,7 @@ object Master {
     val master = actorSystem.actorOf(Props(new Master(host, port)), "Master")
     //进程等待结束,不关闭,优雅推出
     //    自己给自己发送消息
-//    master ! "haha"
+    //    master ! "haha"
     actorSystem.awaitTermination()
   }
 }
