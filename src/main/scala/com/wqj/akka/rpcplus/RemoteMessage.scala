@@ -6,5 +6,5 @@ package com.wqj.akka.rpcplus
   * @Description:
   */
 trait RemoteMessage extends Serializable{
-
+case class RegisterWoeker(id:String)
 }
