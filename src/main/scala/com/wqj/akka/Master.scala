@@ -21,8 +21,16 @@ class Master(val masterHost: String, val masterPort: Int) extends Actor {
   //用户接收消息
   override def receive: Receive = {
 
-    case "connect" => print("a clinet connect")
-    case "haha" => print("haha")
+    case "connect" => {
+      println("a clinet connect")
+      //接收到消息之后 ,就回送消息
+      sender() ! "reply"
+    }
+    case "haha" => {
+      println("haha")
+      sender() ! "haha too"
+    }
+
   }
 }
 
@@ -52,10 +60,10 @@ object Master {
     //    ActorRef作为Actor的代理，使得客户端并不直接与Actor对话，这种Actor
     //    模型也是为了避免TeacherActor的自定义/私有方法或变量被直接访问，所
     //    以你最好将消息发送给ActorRef，由它去传递给目标Actor
-    val master = actorSystem.actorOf(Props(new Master(host, port)), "Worker")
+    val master = actorSystem.actorOf(Props(new Master(host, port)), "Master")
     //进程等待结束,不关闭,优雅推出
     //    自己给自己发送消息
-    master ! "haha"
+//    master ! "haha"
     actorSystem.awaitTermination()
   }
 }
