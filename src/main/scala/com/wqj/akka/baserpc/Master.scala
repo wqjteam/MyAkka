@@ -1,4 +1,4 @@
-package com.wqj.akka
+package com.wqj.akka.baserpc
 
 import akka.actor.{Actor, ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
