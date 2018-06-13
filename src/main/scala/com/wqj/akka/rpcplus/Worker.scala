@@ -1,9 +1,11 @@
 package com.wqj.akka.baserpc
 
+import java.util.UUID
+
 import akka.actor.{Actor, ActorSelection, ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
-import com.wqj.akka.rpcplus.RegisterWoeker
-
+import com.wqj.akka.rpcplus.{Heartbeat, RegisterWoeker, RegisteredWorker, SendHeartbeat}
+import scala.concurrent.duration._
 /**
   * @Auther: wqj
   * @Date: 2018/6/13 11:25
@@ -13,7 +15,7 @@ class Worker(val masterHost: String, val masterPort: Int) extends Actor {
 
   println("执行Worker构造器")
   var master: ActorSelection = _
-
+  val workerId = UUID.randomUUID().toString
   //  建立连接
   override def preStart(): Unit = {
     println("执行Worker初始化init方法")
@@ -26,16 +28,22 @@ class Worker(val masterHost: String, val masterPort: Int) extends Actor {
       //1.MasterSystem是新建MasterSystem就确定命名的,2必须包含/user这是规定,3.Master这是在Master中actorOf中命名已经规定了
     master = context.actorSelection(s"akka.tcp://MasterSystem@$masterHost:$masterPort/user/Master")
     //向master发送消息
-    master ! RegisterWoeker("1","127.0.0.1","3")
+    master ! RegisterWoeker(workerId,"127.0.0.1","8888")
   }
 
   override def receive = {
 
-    case "reply" => {
-      println("接收到 一个reply")
+    case RegisteredWorker(masterUrl) => {
+      println(masterUrl)
+      //启动定时器发送心跳
+      import context.dispatcher
+      //多长时间后执行 单位,多长时间执行一次 单位, 消息的接受者(直接给master发不好, 先给自己发送消息, 以后可以做下判断, 什么情况下再发送消息), 信息
+      context.system.scheduler.schedule(0 millis, 10000 millis, self, SendHeartbeat)
     }
-    case "exit" => {
-      println("worker收到结束消息")
+
+    case SendHeartbeat => {
+      println("send heartbeat to master")
+      master ! Heartbeat(workerId)
     }
   }
 }

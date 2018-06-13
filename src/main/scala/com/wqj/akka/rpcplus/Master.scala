@@ -2,6 +2,9 @@ package com.wqj.akka.baserpc
 
 import akka.actor.{Actor, ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
+import com.wqj.akka.rpcplus.{CheckTimeOutWorker, Heartbeat, RegisterWoeker, WorkInfo}
+
+import scala.collection.mutable
 
 /**
   * @Auther: wqj
@@ -12,6 +15,10 @@ class Master(val masterHost: String, val masterPort: Int) extends Actor {
 
   println("执行Master构造器")
 
+  //这是worker的心跳数据
+  val workerMap=new mutable.HashMap[String,WorkInfo]()
+
+  val workers=new mutable.HashSet[WorkInfo]()
   override def preStart(): Unit = {
     //初始化 可以在这里写业务逻辑
     println("Master_preStart init")
@@ -21,16 +28,23 @@ class Master(val masterHost: String, val masterPort: Int) extends Actor {
   //用户接收消息
   override def receive: Receive = {
 
-    case "connect" => {
-      println("a clinet connect")
-      //接收到消息之后 ,就回送消息
-      sender() ! "reply"
+    case Heartbeat(id) => {
+      if(workerMap.contains(id)){
+        val workerInfo = workerMap(id)
+        //报活
+        val currentTime = System.currentTimeMillis()
+        workerInfo.lastHeartbeatTime = currentTime
+      }
     }
-    case "haha" => {
-      println("haha")
-      sender() ! "haha too"
+    case CheckTimeOutWorker => {
+      val currentTime = System.currentTimeMillis()
+      val toRemove = workers.filter(x => currentTime - x.lastHeartbeatTime > 5000)
+      for(w <- toRemove) {
+        workers -= w
+        workerMap -= w.id
+      }
+      println(workers.size)
     }
-
   }
 }
 
