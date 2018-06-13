@@ -1,10 +1,10 @@
-package com.wqj.akka.baserpc
+package com.wqj.akka.rpcplus
 
 import akka.actor.{Actor, ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
-import com.wqj.akka.rpcplus.{CheckTimeOutWorker, Heartbeat, RegisterWoeker, WorkInfo}
-import scala.concurrent.duration._
+
 import scala.collection.mutable
+import scala.concurrent.duration._
 
 /**
   * @Auther: wqj
@@ -24,6 +24,8 @@ class Master(val masterHost: String, val masterPort: Int) extends Actor {
     //初始化 可以在这里写业务逻辑
     println("Master_preStart init")
     //给自己发送数据,定时清除死忙的worker
+    //导入隐式转换
+    import context.dispatcher //使用timer太low了, 可以使用akka的, 使用定时器, 要导入这个包
     context.system.scheduler.schedule(0 millis, 15000 millis, self, CheckTimeOutWorker)
   }
 
