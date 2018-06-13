@@ -3,7 +3,7 @@ package com.wqj.akka.baserpc
 import akka.actor.{Actor, ActorSystem, Props}
 import com.typesafe.config.ConfigFactory
 import com.wqj.akka.rpcplus.{CheckTimeOutWorker, Heartbeat, RegisterWoeker, WorkInfo}
-
+import scala.concurrent.duration._
 import scala.collection.mutable
 
 /**
@@ -22,7 +22,7 @@ class Master(val masterHost: String, val masterPort: Int) extends Actor {
   override def preStart(): Unit = {
     //初始化 可以在这里写业务逻辑
     println("Master_preStart init")
-    super.preStart()
+    context.system.scheduler.schedule(0 millis, 15000 millis, self, CheckTimeOutWorker)
   }
 
   //用户接收消息
