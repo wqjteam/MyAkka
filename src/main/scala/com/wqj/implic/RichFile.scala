@@ -18,8 +18,8 @@ object RichFile {
   def main(args: Array[String]): Unit = {
     val f = new File("e://word.txt")
     //显示增强
-    //    val contents = new RichFile(f).read()
-    //    println(contents)
+    //    val f = new RichFile(f)
+    //    println(f.read())
 
     //隐式增强
     import MyPredef.fileToRichFile
