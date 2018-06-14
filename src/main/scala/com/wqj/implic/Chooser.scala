@@ -6,7 +6,7 @@ package com.wqj.implic
   * @Description:
   */
 
-//视图界定  view bound 必须穿进去一个隐式转换的函数
+//视图界定  view bound 必须穿进去一个隐式转换的函数  后面要带T
 //class Chooser[T <% Ordered[T]] {
 //
 //  def choose(first: T, second: T): T = {
@@ -19,7 +19,7 @@ package com.wqj.implic
 //  }
 //}
 
-//上下文界定  他必须传进去一个隐式转换的值/函数
+//上下文界定  他必须传进去一个隐式转换的值/函数 后面要不带T
 class Chooser[T : Ordering] {
 
   def choose(first: T, second: T): T = {
