@@ -11,7 +11,7 @@ object HighFunc extends App {
 
     x * x
   }
-
+  //    def a: Int => Int = { x => x * x }
   val fun2: Int => Int = { x => x * x }
 
   //  print(fun)
