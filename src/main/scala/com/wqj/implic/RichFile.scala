@@ -17,7 +17,7 @@ class RichFile(val f: File) {
 object RichFile {
   def main(args: Array[String]): Unit = {
     val f = new File("")
-    //显示的增强
+    //显示增强
     //    val contents = new RichFile(f).read()
 
 
