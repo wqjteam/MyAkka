@@ -16,14 +16,14 @@ class RichFile(val f: File) {
 
 object RichFile {
   def main(args: Array[String]): Unit = {
-    val f = new File("")
+    val f = new File("e://word.txt")
     //显示增强
     //    val contents = new RichFile(f).read()
-
+    //    println(contents)
 
     //隐式增强
     import MyPredef.fileToRichFile
-    f.read();
+    println(f.read());
 
 
 
