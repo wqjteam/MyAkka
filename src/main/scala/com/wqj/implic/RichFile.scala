@@ -11,7 +11,7 @@ import scala.io.Source
   */
 
 class RichFile(val f: File) {
-  def read() = Source.fromFile(f).mkString
+  def read22() = Source.fromFile(f).mkString
 }
 
 object RichFile {
@@ -19,11 +19,11 @@ object RichFile {
     val f = new File("e://word.txt")
     //显示增强
     //    val f = new RichFile(f)
-    //    println(f.read())
+    //    println(f.read22())
 
     //隐式增强
     import MyPredef.fileToRichFile
-    println(f.read());
+    println(f.read22());
 
 
 
